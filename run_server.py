@@ -14,10 +14,8 @@ sys.path.insert(0,str(project_root))
 
 # path setup
 import uvicorn
-import src.api.app import create_app
-import src.mcp_server.server import create_mcp_server
-
-import src.core.config import settigs
+from fastapi import FastAPI
+from src.api import llm
 
 # FastAPi 앱 생성
 app = FastAPI(title = "API",description="API")
@@ -29,6 +27,12 @@ app.include_router(llm.router, prefix = "/api/v1", tags = ["llm"])
 async def root():
     return {"message": "FAST API LLM is running!"}
 
+
+from src.mcp_server.calculator import create_calculator_mcp_server
+from src.mcp_server.temp import create_temp_mcp_server
+
+from src.config import settings
+
 async def main():
     """
     두 서버 동시에 실행
@@ -37,7 +41,7 @@ async def main():
     print("🚀 MCP + API 서버를 시작합니다...")
     print(f"📍 API 서버: http://{settings.host}:{settings.port}")
     print(f"📚 API 문서: http://{settings.host}:{settings.port}/docs")
-    print(f"📍 MCP 서버: http://{settings.mcp_host}:{settings.mcp_port}/sse")
+    # print(f"📍 MCP 서버: http://{settings.mcp_host}:{settings.mcp_port}/sse")
     print("⏹️  종료하려면 Ctrl+C를 누르세요")
     print("-" * 50)
 
@@ -47,27 +51,44 @@ async def main():
 
     await asyncio.sleep(2)
     # MCP 서버 실행 (메인스레드???)
-    await run_mcp_server()
+    await run_mcp_servers()
 
 
 
 def run_api_server():
     uvicorn.run(
         "run_server:app",
-        host = setting.host,
-        port = settings.port,
-        log_level="info
+        host= settings.host,
+        port= settings.port,
+        log_level="info"
     )
 
-async def run_mcp_server():
+async def run_mcp_servers():
     """
     MCP 서버 실행
     """
-    server = create_mcp_server()
-    await server.run_sse_async(
-        host=settings.mcp_host,
-        port=settings.mcp_port
+    calc_mcp = create_calculator_mcp_server() 
+    temp_mcp = create_temp_mcp_server()
+
+    task1 = asyncio.create_task(
+        calc_mcp.run_sse_async(
+            # host=settings.mcp1_host,
+            # port=settings.mcp1_port
+        )
     )
+    task2 = asyncio.create_task(
+        temp_mcp.run_sse_async(
+            #host=settings.mcp2_host,
+            #port=settings.mcp2_port
+        )
+    )
+    await asyncio.gather(task1,task2)
+    
+    # server = create_mcp_server()
+    # await server.run_sse_async(
+    #     host=settings.mcp_host,
+    #     port=settings.mcp_port
+    #)
 
 
 # -------------------------------------------------------
