@@ -2,20 +2,13 @@
 MCP + API 서버 동시 실행 스크립트
 """
 
-#from fastapi import FastAPI
-#from fastmcp import FastMCP
-#from fastapi_mcp import FastApiMCP
-#from api.v1.endpoints import llm
-#from typing import Dict, Any
-#from pydantic import BaseModel
-
 import asyncio
 import sys
 import time
 import threading
 from pathlib import Path
 
-#프로젝트 루트를 python 경로에 추가
+# 프로젝트 루트를 Python 경로에 추가
 project_root = Path(__file__).parent
 sys.path.insert(0,str(project_root))
 
@@ -24,6 +17,7 @@ import uvicorn
 import src.api.app import create_app
 import src.mcp_server.server import create_mcp_server
 
+import src.core.config import settigs
 
 # FastAPi 앱 생성
 app = FastAPI(title = "API",description="API")
@@ -47,19 +41,23 @@ async def main():
     print("⏹️  종료하려면 Ctrl+C를 누르세요")
     print("-" * 50)
 
-    # API 실행
+    # API 서버를 별도 스레드에서 실행
+    api_thread = threading.Thread(target=run_api_server,daemon=True)
+    api_thread.start()
+
+    await asyncio.sleep(2)
+    # MCP 서버 실행 (메인스레드???)
+    await run_mcp_server()
+
+
+
+def run_api_server():
     uvicorn.run(
         "run_server:app",
         host = setting.host,
         port = settings.port,
         log_level="info
     )
-
-    # MCP 서버 실행 (메인스레드???)
-    await asyncio.sleep(2)
-    await run_mcp_server()
-
-
 
 async def run_mcp_server():
     """
