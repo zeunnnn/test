@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     )
     # Sever Settings
     host: str = Field(
-        default="0.0.0.0",
+        default="127.0.0.1",
         description="Sever host address"
     )
     port: int = Field(
@@ -34,7 +34,7 @@ class Settings(BaseSettings):
     )
     # MCP Settings
     mcp1_host: str = Field(
-        default="0.0.0.0",
+        default="127.0.0.1",
         description="MCP server host address"
     )
     mcp1_port: int = Field(
@@ -44,7 +44,7 @@ class Settings(BaseSettings):
         description="MCP server port number"
     )
     mcp2_host: str = Field(
-        default="0.0.0.0",
+        default="127.0.0.1",
         description="MCP server host address"
     )
     mcp2_port: int = Field(

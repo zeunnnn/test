@@ -1,0 +1,16 @@
+{
+    "mcpServers": {
+        "calculator": {
+            "host": "127.0.0.1",
+            "port": 8005,
+            "transport": "sse",
+            "description": "사칙연산 계산기"
+        },
+        "horoscope": {
+            "host": "127.0.0.1",
+            "port": 8006,
+            "transport": "sse",
+            "description": "서양 12궁 별자리 주간 운세"
+        }
+    }
+}
